@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Wheel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff7700, #ff5500);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            padding: 20px;
+            color: #fff;
+            text-align: center;
+        }
+
+        .title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 5rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+            color: #fff;
+            animation: pulse 2s infinite alternate;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin-bottom: 40px;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            border: 10px solid #ffdd00;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.3), 
+                        inset 0 0 20px rgba(0, 0, 0, 0.2);
+            transition: transform 4s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+            transform: rotate(0deg);
+        }
+
+        .section {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: bottom right;
+            left: 0;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-left: 60px;
+            padding-bottom: 30px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #333;
+            user-select: none;
+        }
+
+        .section:nth-child(1) { 
+            background-color: #FFA500; 
+            transform: rotate(0deg); 
+        }
+        .section:nth-child(2) { 
+            background-color: #FF8C00; 
+            transform: rotate(72deg); 
+        }
+        .section:nth-child(3) { 
+            background-color: #FF7F50; 
+            transform: rotate(144deg); 
+        }
+        .section:nth-child(4) { 
+            background-color: #FF6347; 
+            transform: rotate(216deg); 
+        }
+        .section:nth-child(5) { 
+            background-color: #FF4500; 
+            transform: rotate(288deg); 
+        }
+
+        .center {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: #ffdd00;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #333;
+            border: 5px solid #fff;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 50px;
+            background: #ffdd00;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            z-index: 11;
+            filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
+        }
+
+        .spin-btn {
+            background: linear-gradient(to bottom, #ffdd00, #ff7700);
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fff;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spin-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .spin-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .spin-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0));
+            transform: rotate(30deg);
+            transition: all 0.5s;
+        }
+
+        .spin-btn:hover::after {
+            transform: rotate(30deg) translate(10%, 10%);
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .popup-content {
+            background: linear-gradient(135deg, #ff7700, #ff5500);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(255, 119, 0, 0.7);
+            max-width: 90%;
+            width: 400px;
+            animation: scaleUp 0.5s ease;
+            position: relative;
+            border: 5px solid #ffdd00;
+        }
+
+        .popup h2 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #fff;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .winner {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #ffdd00;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            animation: glow 1.5s infinite alternate;
+        }
+
+        .close-btn {
+            background: #ffdd00;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #fff;
+            transform: scale(1.05);
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ffdd00;
+            opacity: 0.8;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05); }
+        }
+
+        @keyframes glow {
+            0% { text-shadow: 0 0 5px #ffdd00; }
+            100% { text-shadow: 0 0 20px #ffdd00, 0 0 30px #ffdd00; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scaleUp {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @media (max-width: 600px) {
+            .title {
+                font-size: 3.5rem;
+            }
+            
+            .wheel-container {
+                width: 300px;
+                height: 300px;
+            }
+            
+            .section {
+                font-size: 0.9rem;
+                padding-left: 40px;
+                padding-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">Sign Wheel</h1>
+    
+    <div class="container">
+        <div class="wheel-container">
+            <div class="pointer"></div>
+            <div class="wheel" id="wheel">
+                <div class="section">Orange Hands</div>
+                <div class="section">Support Warrior</div>
+                <div class="section">Serious Builder</div>
+                <div class="section">Content Creator</div>
+                <div class="section">Orange in the veins</div>
+                <div class="center">SPIN</div>
+            </div>
+        </div>
+        
+        <button class="spin-btn" id="spin-btn">Spin Wheel</button>
+    </div>
+    
+    <div class="popup" id="popup">
+        <div class="popup-content">
+            <h2>Congratulations!</h2>
+            <p>You've won:</p>
+            <div class="winner" id="winner"></div>
+            <button class="close-btn" id="close-btn">Celebrate!</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const wheel = document.getElementById('wheel');
+            const spinBtn = document.getElementById('spin-btn');
+            const popup = document.getElementById('popup');
+            const winnerElement = document.getElementById('winner');
+            const closeBtn = document.getElementById('close-btn');
+            
+            const options = [
+                "Orange Hands",
+                "Support Warrior",
+                "Serious Builder",
+                "Content Creator",
+                "Orange in the veins"
+            ];
+            
+            let spinning = false;
+            
+            // Add confetti effect
+            function createConfetti() {
+                const container = document.querySelector('.popup-content');
+                for (let i = 0; i < 50; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = Math.random() * 100 + '%';
+                    confetti.style.backgroundColor = ['#ffdd00', '#ff7700', '#ff5500', '#ffffff'][Math.floor(Math.random() * 4)];
+                    confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                    container.appendChild(confetti);
+                    
+                    // Remove confetti after animation
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 2000);
+                }
+            }
+            
+            // Spin the wheel
+            spinBtn.addEventListener('click', () => {
+                if (spinning) return;
+                
+                spinning = true;
+                const degrees = 1800 + Math.floor(Math.random() * 1800);
+                const winnerIndex = Math.floor(Math.random() * options.length);
+                const extraDegrees = winnerIndex * 72;
+                const totalDegrees = degrees + extraDegrees;
+                
+                wheel.style.transform = `rotate(${totalDegrees}deg)`;
+                
+                setTimeout(() => {
+                    spinning = false;
+                    winnerElement.textContent = options[winnerIndex];
+                    popup.style.display = 'flex';
+                    createConfetti();
+                }, 4000);
+            });
+            
+            // Close the popup
+            closeBtn.addEventListener('click', () => {
+                popup.style.display = 'none';
+                wheel.style.transform = 'rotate(0deg)';
+            });
+            
+            // Add particles effect to background
+            function createParticles() {
+                const particles = 50;
+                const container = document.body;
+                
+                for (let i = 0; i < particles; i++) {
+                    const particle = document.createElement('div');
+                    particle.style.position = 'fixed';
+                    particle.style.width = Math.random() * 5 + 2 + 'px';
+                    particle.style.height = particle.style.width;
+                    particle.style.backgroundColor = '#ffdd00';
+                    particle.style.borderRadius = '50%';
+                    particle.style.left = Math.random() * 100 + 'vw';
+                    particle.style.top = Math.random() * 100 + 'vh';
+                    particle.style.opacity = Math.random() * 0.5 + 0.1;
+                    particle.style.pointerEvents = 'none';
+                    container.appendChild(particle);
+                    
+                    // Animate particles
+                    animateParticle(particle);
+                }
+                
+                function animateParticle(el) {
+                    const amplitude = Math.random() * 10 + 5;
+                    const duration = Math.random() * 10 + 5;
+                    
+                    // Horizontal movement
+                    const keyframes = [
+                        { transform: 'translateX(0)' },
+                        { transform: `translateX(${amplitude}vw)` },
+                        { transform: 'translateX(0)' }
+                    ];
+                    
+                    const options = {
+                        duration: duration * 1000,
+                        iterations: Infinity
+                    };
+                    
+                    el.animate(keyframes, options);
+                }
+            }
+            
+            createParticles();
+        });
+    </script>
+</body>
+</html>
